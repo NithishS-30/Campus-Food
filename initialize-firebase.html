@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialize Firebase Database</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .init-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .init-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .init-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 800;
+            margin-bottom: var(--spacing-xl);
+            color: var(--primary);
+        }
+
+        .init-step {
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background: var(--lighter-gray);
+            border-radius: var(--radius-lg);
+        }
+
+        .init-step h3 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            margin-top: var(--spacing-sm);
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .log-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: var(--spacing-md);
+        }
+
+        .log-output div {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="init-container">
+        <div class="init-card">
+            <h1 class="init-title">🚀 Initialize Firebase Database</h1>
+
+            <div class="init-step">
+                <h3>Step 1: Check Firebase Connection</h3>
+                <div id="step1Status" class="status pending">Pending...</div>
+            </div>
+
+            <div class="init-step">
+                <h3>Step 2: Initialize Menu Items</h3>
+                <div id="step2Status" class="status pending">Pending...</div>
+            </div>
+
+            <div class="init-step">
+                <h3>Step 3: Set Up Security Rules (Manual)</h3>
+                <p>You need to manually set up Firestore security rules in the Firebase Console.</p>
+                <a href="https://console.firebase.google.com/project/smartcampusfoodorder/firestore/rules"
+                    target="_blank" class="btn btn-primary">
+                    Open Firebase Console
+                </a>
+                <details style="margin-top: 1rem;">
+                    <summary style="cursor: pointer; font-weight: 600;">View Security Rules</summary>
+                    <pre
+                        style="background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to read menu items
+    match /menuItems/{itemId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only allow writes from admin
+    }
+    
+    // Allow users to read/write their own orders
+    match /orders/{orderId} {
+      allow read: if request.auth != null && 
+                     (resource.data.userId == request.auth.uid || 
+                      request.auth.token.admin == true);
+      allow create: if request.auth != null && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && 
+                       (resource.data.userId == request.auth.uid || 
+                        request.auth.token.admin == true);
+    }
+    
+    // Allow users to read/write their own user document
+    match /users/{userId} {
+      allow read: if request.auth != null && 
+                     (request.auth.uid == userId || 
+                      request.auth.token.admin == true);
+      allow create, update: if request.auth != null && 
+                               request.auth.uid == userId;
+    }
+  }
+}
+                    </pre>
+                </details>
+            </div>
+
+            <div class="init-step">
+                <h3>Step 4: Enable Email/Password Authentication</h3>
+                <p>Enable Email/Password authentication in Firebase Console.</p>
+                <a href="https://console.firebase.google.com/project/smartcampusfoodorder/authentication/providers"
+                    target="_blank" class="btn btn-primary">
+                    Configure Authentication
+                </a>
+            </div>
+
+            <div style="margin-top: var(--spacing-2xl);">
+                <button id="initBtn" class="btn btn-primary btn-lg" style="width: 100%;">
+                    Initialize Database
+                </button>
+            </div>
+
+            <div class="log-output" id="logOutput" style="margin-top: var(--spacing-xl);">
+                <div>📋 Console logs will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const logOutput = document.getElementById('logOutput');
+
+        function log(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+
+            const colors = {
+                info: '#61dafb',
+                success: '#98c379',
+                error: '#e06c75',
+                warning: '#e5c07b'
+            };
+
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logOutput.appendChild(logEntry);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        async function initializeDatabase() {
+            const initBtn = document.getElementById('initBtn');
+            initBtn.disabled = true;
+            initBtn.textContent = 'Initializing...';
+
+            try {
+                // Step 1: Check Firebase Connection
+                log('Checking Firebase connection...', 'info');
+                document.getElementById('step1Status').textContent = 'Checking...';
+                document.getElementById('step1Status').className = 'status pending';
+
+                if (!app || !db) {
+                    throw new Error('Firebase not initialized. Check your credentials.');
+                }
+
+                // Try to access Firestore
+                await db.collection('_test').doc('_test').set({ test: true });
+                await db.collection('_test').doc('_test').delete();
+
+                log('✅ Firebase connected successfully!', 'success');
+                document.getElementById('step1Status').textContent = '✅ Connected';
+                document.getElementById('step1Status').className = 'status success';
+
+                // Step 2: Initialize Menu Items
+                log('Initializing menu items...', 'info');
+                document.getElementById('step2Status').textContent = 'Initializing...';
+                document.getElementById('step2Status').className = 'status pending';
+
+                const sampleItems = [
+                    // Breakfast
+                    { name: 'Masala Dosa', category: 'Breakfast', price: 45, image: '🥞', available: true, description: 'Crispy dosa with potato masala' },
+                    { name: 'Idli Sambar', category: 'Breakfast', price: 35, image: '🍚', available: true, description: 'Soft idlis with sambar & chutney' },
+                    { name: 'Poha', category: 'Breakfast', price: 30, image: '🍛', available: true, description: 'Flattened rice with spices' },
+                    { name: 'Upma', category: 'Breakfast', price: 30, image: '🥣', available: true, description: 'Semolina with vegetables' },
+
+                    // Lunch/Dinner
+                    { name: 'Veg Thali', category: 'Meals', price: 80, image: '🍱', available: true, description: 'Complete veg meal with rice, roti, dal & sabzi' },
+                    { name: 'Chicken Biryani', category: 'Meals', price: 120, image: '🍗', available: true, description: 'Aromatic biryani with tender chicken' },
+                    { name: 'Paneer Butter Masala', category: 'Meals', price: 90, image: '🧈', available: true, description: 'Paneer in rich creamy gravy' },
+                    { name: 'Dal Tadka', category: 'Meals', price: 60, image: '🫘', available: true, description: 'Yellow lentils with tadka' },
+
+                    // Snacks
+                    { name: 'Samosa', category: 'Snacks', price: 15, image: '🥟', available: true, description: 'Crispy fried pastry with filling' },
+                    { name: 'Vada Pav', category: 'Snacks', price: 20, image: '🍔', available: true, description: 'Mumbai street food special' },
+                    { name: 'Pani Puri', category: 'Snacks', price: 25, image: '🎯', available: true, description: '6 pieces of crispy puri' },
+                    { name: 'French Fries', category: 'Snacks', price: 40, image: '🍟', available: true, description: 'Crispy golden fries' },
+
+                    // Beverages
+                    { name: 'Chai', category: 'Beverages', price: 10, image: '☕', available: true, description: 'Hot Indian tea' },
+                    { name: 'Coffee', category: 'Beverages', price: 15, image: '☕', available: true, description: 'Fresh brewed coffee' },
+                    { name: 'Cold Coffee', category: 'Beverages', price: 30, image: '🥤', available: true, description: 'Iced coffee with cream' },
+                    { name: 'Mango Lassi', category: 'Beverages', price: 35, image: '🥭', available: true, description: 'Sweet yogurt drink' },
+                ];
+
+                // Check if menu items already exist
+                const existingItems = await db.collection('menuItems').limit(1).get();
+
+                if (existingItems.empty) {
+                    log('Adding menu items to Firestore...', 'info');
+                    const batch = db.batch();
+
+                    sampleItems.forEach(item => {
+                        const docRef = db.collection('menuItems').doc();
+                        batch.set(docRef, item);
+                        log(`  Adding: ${item.name}`, 'info');
+                    });
+
+                    await batch.commit();
+                    log(`✅ Added ${sampleItems.length} menu items!`, 'success');
+                } else {
+                    log('⚠️ Menu items already exist. Skipping...', 'warning');
+                }
+
+                document.getElementById('step2Status').textContent = '✅ Initialized';
+                document.getElementById('step2Status').className = 'status success';
+
+                log('', 'info');
+                log('========================================', 'success');
+                log('✅ DATABASE INITIALIZATION COMPLETE!', 'success');
+                log('========================================', 'success');
+                log('', 'info');
+                log('Next steps:', 'info');
+                log('1. Set up Firestore security rules (see Step 3 above)', 'warning');
+                log('2. Enable Email/Password authentication (see Step 4 above)', 'warning');
+                log('3. Go to login.html to create your account', 'info');
+                log('', 'info');
+
+                initBtn.textContent = '✅ Initialization Complete';
+                initBtn.className = 'btn btn-success btn-lg';
+
+                // Show success alert
+                setTimeout(() => {
+                    if (confirm('Database initialized successfully! Would you like to go to the login page now?')) {
+                        window.location.href = 'login.html';
+                    }
+                }, 1000);
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                console.error('Initialization error:', error);
+
+                if (error.code === 'permission-denied') {
+                    log('', 'error');
+                    log('PERMISSION DENIED ERROR:', 'error');
+                    log('You need to set up Firestore security rules first!', 'error');
+                    log('', 'error');
+                    log('Temporary rules for testing:', 'warning');
+                    log('Go to Firebase Console > Firestore > Rules', 'warning');
+                    log('Replace with:', 'warning');
+                    log('rules_version = "2";', 'info');
+                    log('service cloud.firestore {', 'info');
+                    log('  match /databases/{database}/documents {', 'info');
+                    log('    match /{document=**} {', 'info');
+                    log('      allow read, write: if true;', 'info');
+                    log('    }', 'info');
+                    log('  }', 'info');
+                    log('}', 'info');
+                    log('', 'warning');
+                    log('⚠️ WARNING: This allows anyone to read/write your database!', 'error');
+                    log('Use this ONLY for testing. Replace with secure rules later.', 'error');
+
+                    document.getElementById('step2Status').textContent = '❌ Permission Denied';
+                    document.getElementById('step2Status').className = 'status error';
+                } else if (error.message.includes('database') && error.message.includes('does not exist')) {
+                    log('', 'error');
+                    log('DATABASE DOES NOT EXIST ERROR:', 'error');
+                    log('You need to create a Firestore database first!', 'error');
+                    log('', 'warning');
+                    log('1. Go to Firebase Console', 'warning');
+                    log('2. Select your project: smartcampusfoodorder', 'warning');
+                    log('3. Click "Firestore Database" in the left menu', 'warning');
+                    log('4. Click "Create database"', 'warning');
+                    log('5. Choose "Start in test mode" (for now)', 'warning');
+                    log('6. Select a location close to you', 'warning');
+                    log('7. Click "Enable"', 'warning');
+                    log('8. Come back here and try again', 'warning');
+
+                    document.getElementById('step2Status').textContent = '❌ Database Not Created';
+                    document.getElementById('step2Status').className = 'status error';
+                }
+
+                initBtn.disabled = false;
+                initBtn.textContent = 'Retry Initialization';
+                initBtn.className = 'btn btn-error btn-lg';
+            }
+        }
+
+        document.getElementById('initBtn').addEventListener('click', initializeDatabase);
+
+        // Auto-check connection on load
+        window.addEventListener('load', () => {
+            log('Page loaded. Ready to initialize database.', 'info');
+            log('Click the button below to start initialization.', 'info');
+        });
+    </script>
+</body>
+
+</html>

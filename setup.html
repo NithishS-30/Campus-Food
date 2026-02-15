@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIT-AP Food Ordering - Setup Instructions</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .setup-container {
+            min-height: 100vh;
+            padding: var(--spacing-2xl);
+            background: var(--gradient-primary);
+        }
+
+        .setup-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--spacing-3xl);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .setup-logo {
+            font-size: 5rem;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .setup-title {
+            font-size: var(--font-size-3xl);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .step {
+            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-xl);
+            background: var(--lighter-gray);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 700;
+            margin-right: var(--spacing-md);
+        }
+
+        .step-title {
+            display: inline;
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .step-content {
+            margin-top: var(--spacing-md);
+            margin-left: 56px;
+        }
+
+        .code-block {
+            background: var(--dark);
+            color: #00ff00;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-family: 'Courier New', monospace;
+            font-size: var(--font-size-sm);
+            overflow-x: auto;
+            margin: var(--spacing-md) 0;
+        }
+
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin: var(--spacing-md) 0;
+        }
+
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid var(--accent);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin: var(--spacing-md) 0;
+        }
+
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid var(--primary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin: var(--spacing-md) 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-xl);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="setup-container">
+        <div class="setup-card animate-fade-in">
+            <div class="setup-header">
+                <div class="setup-logo">🍽️</div>
+                <h1 class="setup-title">VIT-AP Smart Campus Food Ordering System</h1>
+                <p class="text-gray">Follow these steps to get started</p>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="step">
+                <span class="step-number">1</span>
+                <h2 class="step-title">Create Firebase Project</h2>
+                <div class="step-content">
+                    <p>Go to <a href="https://console.firebase.google.com/" target="_blank"
+                            style="color: var(--primary); font-weight: 600;">Firebase Console</a></p>
+                    <ul style="margin-left: var(--spacing-lg); margin-top: var(--spacing-md);">
+                        <li>Click "Add Project"</li>
+                        <li>Name: <code>vit-ap-food-ordering</code></li>
+                        <li>Disable Google Analytics (optional)</li>
+                        <li>Click "Create Project"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step">
+                <span class="step-number">2</span>
+                <h2 class="step-title">Enable Authentication</h2>
+                <div class="step-content">
+                    <p>In Firebase Console:</p>
+                    <ul style="margin-left: var(--spacing-lg); margin-top: var(--spacing-md);">
+                        <li>Go to <strong>Authentication</strong> → Click "Get Started"</li>
+                        <li>Enable <strong>Email/Password</strong> sign-in method</li>
+                        <li>Save changes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step">
+                <span class="step-number">3</span>
+                <h2 class="step-title">Create Firestore Database</h2>
+                <div class="step-content">
+                    <p>In Firebase Console:</p>
+                    <ul style="margin-left: var(--spacing-lg); margin-top: var(--spacing-md);">
+                        <li>Go to <strong>Firestore Database</strong> → "Create Database"</li>
+                        <li>Select <strong>Test Mode</strong> (for development)</li>
+                        <li>Location: <code>asia-south1</code> (India)</li>
+                        <li>Click "Enable"</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Note:</strong> Test mode allows open access. Update security rules before production!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step">
+                <span class="step-number">4</span>
+                <h2 class="step-title">Get Firebase Configuration</h2>
+                <div class="step-content">
+                    <p>In Firebase Console:</p>
+                    <ul style="margin-left: var(--spacing-lg); margin-top: var(--spacing-md);">
+                        <li>Click ⚙️ (Project Settings)</li>
+                        <li>Scroll to "Your apps" → Click Web icon <code>&lt;/&gt;</code></li>
+                        <li>Register app: <code>vit-ap-food-web</code></li>
+                        <li>Copy the <code>firebaseConfig</code> object</li>
+                    </ul>
+
+                    <p style="margin-top: var(--spacing-md);"><strong>Open <code>firebase-config.js</code> and
+                            replace:</strong></p>
+
+                    <div class="code-block">
+                        const firebaseConfig = {<br>
+                        &nbsp;&nbsp;apiKey: "YOUR_API_KEY",<br>
+                        &nbsp;&nbsp;authDomain: "YOUR_AUTH_DOMAIN",<br>
+                        &nbsp;&nbsp;projectId: "YOUR_PROJECT_ID",<br>
+                        &nbsp;&nbsp;storageBucket: "YOUR_STORAGE_BUCKET",<br>
+                        &nbsp;&nbsp;messagingSenderId: "YOUR_SENDER_ID",<br>
+                        &nbsp;&nbsp;appId: "YOUR_APP_ID"<br>
+                        };
+                    </div>
+
+                    <div class="info">
+                        <strong>ℹ️ Tip:</strong> Keep your Firebase credentials secure. Don't commit them to public
+                        repositories!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step">
+                <span class="step-number">5</span>
+                <h2 class="step-title">Run the Application</h2>
+                <div class="step-content">
+                    <p><strong>Local server is already running!</strong></p>
+
+                    <div class="success">
+                        ✅ Server running on: <strong>http://localhost:8000</strong>
+                    </div>
+
+                    <p style="margin-top: var(--spacing-md);">If you need to restart the server:</p>
+
+                    <div class="code-block">
+                        python -m http.server 8000
+                    </div>
+
+                    <p style="margin-top: var(--spacing-md);"><strong>Alternative methods:</strong></p>
+                    <div class="code-block">
+                        # Using Node.js<br>
+                        npx http-server -p 8000<br>
+                        <br>
+                        # Or use VS Code Live Server extension
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="step">
+                <span class="step-number">6</span>
+                <h2 class="step-title">Create Your First Account</h2>
+                <div class="step-content">
+                    <p>Once Firebase is configured:</p>
+                    <ul style="margin-left: var(--spacing-lg); margin-top: var(--spacing-md);">
+                        <li>Click "Sign Up" tab on login page</li>
+                        <li>Fill in your details</li>
+                        <li>Click "Create Account"</li>
+                    </ul>
+
+                    <div class="info">
+                        <strong>📦 Auto-initialization:</strong> Sample menu items will be created automatically on your
+                        first login!
+                    </div>
+
+                    <p style="margin-top: var(--spacing-md);"><strong>Demo Credentials (after setup):</strong></p>
+                    <div class="code-block">
+                        Email: demo@vitap.ac.in<br>
+                        Password: demo123
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="step" style="border-left-color: var(--accent);">
+                <h2 style="color: var(--accent); margin-bottom: var(--spacing-md);">✨ Key Features</h2>
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm);">🔐</div>
+                        <strong>Secure Login</strong>
+                        <p style="font-size: var(--font-size-sm); color: var(--gray); margin-top: var(--spacing-xs);">
+                            Firebase Auth</p>
+                    </div>
+
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm);">🍽️</div>
+                        <strong>Menu Browse</strong>
+                        <p style="font-size: var(--font-size-sm); color: var(--gray); margin-top: var(--spacing-xs);">
+                            Category filters</p>
+                    </div>
+
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm);">🛒</div>
+                        <strong>Shopping Cart</strong>
+                        <p style="font-size: var(--font-size-sm); color: var(--gray); margin-top: var(--spacing-xs);">
+                            Real-time updates</p>
+                    </div>
+
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div style="font-size: 2rem; margin-bottom: var(--spacing-sm);">📍</div>
+                        <strong>Live Tracking</strong>
+                        <p style="font-size: var(--font-size-sm); color: var(--gray); margin-top: var(--spacing-xs);">
+                            Order status</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="btn-group">
+                <a href="login.html" class="btn btn-primary btn-lg" style="flex: 1; text-decoration: none;">
+                    🚀 Go to Login Page
+                </a>
+                <a href="README.md" class="btn btn-outline btn-lg" style="text-decoration: none;" target="_blank">
+                    📖 Full Documentation
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div
+                style="text-align: center; margin-top: var(--spacing-2xl); padding-top: var(--spacing-xl); border-top: 2px solid var(--lighter-gray);">
+                <p class="text-gray" style="font-size: var(--font-size-sm);">
+                    Made with ❤️ for VIT-AP University Students<br>
+                    <strong>Need help?</strong> See QUICKSTART.md or README.md
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
